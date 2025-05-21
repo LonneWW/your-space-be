@@ -1,0 +1,27 @@
+{
+  "name": "your-space-be",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LonneWW/your-space-be.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LonneWW/your-space-be/issues"
+  },
+  "homepage": "https://github.com/LonneWW/your-space-be#readme",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "mysql2": "^3.14.1"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  }
+}
