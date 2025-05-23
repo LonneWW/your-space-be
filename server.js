@@ -1,24 +1,80 @@
 // server.js
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
+import express from "express";
+import patientRouter from "./routes/patientEndpoints.js";
+// import router from "./routes/patientEndpoints.js";
 dotenv.config();
 
-// Crea un pool di connessioni utilizzando i dati del database
-const pool = mysql.createPool({
-  host: process.env.DB_HOST, // ad esempio: "mysql-tuo-servizio"
-  user: process.env.DB_USER, // definito al momento della creazione del DB su Render
-  password: process.env.DB_PASSWORD, // come configurato su Render
-  database: process.env.DB_NAME, // il nome del database
+const app = express();
+app.use(express.json());
+
+app.use("/patient", patientRouter);
+
+app.get("/", (req, res) => {
+  console.log("qui");
 });
 
-try {
-  const [result] = await pool.query(
-    "SELECT Therapists.name AS therapist_name, Therapists.surname AS therapist_surname, Patients.name AS patient_name, Patients.surname AS patient_surname, Therapists.id AS therapist_id FROM Therapists INNER JOIN Patients WHERE Patients.therapist_id = Therapists.id;"
-  );
-  console.log(result);
-} catch (error) {
-  console.error("Errore durante la query:", error);
-}
+app.listen(3000);
+
+//Prepared statement + JSON
+// let query = `INSERT INTO Patient_Notes (patient_id, id, content, shared, tags, date)
+//   VALUES (?, ?, ?, ?, ?, ?)`;
+// const content = [
+//   {
+//     insert: "Voglio fare le foto alle fate",
+//   },
+//   {
+//     attributes: {
+//       header: 1,
+//     },
+//     insert: "\n",
+//   },
+//   {
+//     insert: "IO ",
+//   },
+//   {
+//     attributes: {
+//       underline: true,
+//     },
+//     insert: "voglio",
+//   },
+//   {
+//     insert: " fare le ",
+//   },
+//   {
+//     attributes: {
+//       bold: true,
+//     },
+//     insert: "foto",
+//   },
+//   {
+//     insert: " alle ",
+//   },
+//   {
+//     attributes: {
+//       italic: true,
+//     },
+//     insert: "fate!",
+//   },
+//   {
+//     insert: "\n",
+//   },
+// ];
+// const tags = JSON.stringify({ tags: ["autostima"] });
+
+// const params = [5, null, content, 1, tags, "2025-05-22 12:43:55"];
+
+// let [result] = await pool.execute(query, params);
+
+// try {
+//   const [result] = await pool.query(
+//     "SELECT Therapists.name AS therapist_name, Therapists.surname AS therapist_surname, Patients.name AS patient_name, Patients.surname AS patient_surname, Therapists.id AS therapist_id FROM Therapists INNER JOIN Patients WHERE Patients.therapist_id = Therapists.id;"
+//   );
+//   console.log(result);
+// } catch (error) {
+//   console.error("Errore durante la query:", error);
+// }
 
 // Un esempio di endpoint per recuperare dati
 // const express = require("express");
