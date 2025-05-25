@@ -4,7 +4,7 @@ import PatientController from "../controllers/patientController.js";
 const router = express.Router();
 const patientController = new PatientController();
 
-router.get("/get-therapists", (req, res) => {
+router.get("/therapists", (req, res) => {
   console.log("qui");
   patientController.getTherapists(req, res);
 });
@@ -27,6 +27,16 @@ router.post("/notes", (req, res) => {
 router.post("/notifications", (req, res) => {
   console.log("post notification!");
   patientController.sendNotification(req, res);
+});
+
+router.put("/therapist", (req, res) => {
+  console.log("put therapist!");
+  patientController.changeTerapist(req, res);
+});
+
+router.put("/therapist-null", (req, res) => {
+  console.log("put therapist-null!");
+  patientController.changeTerapistToNull(req, res);
 });
 
 router.put("/notes", (req, res) => {

@@ -1,15 +1,16 @@
 // server.js
-import mysql from "mysql2/promise";
 import dotenv from "dotenv";
 import express from "express";
-import patientRouter from "./routes/patientEndpoints.js";
-// import router from "./routes/patientEndpoints.js";
+import patientRouter from "./routes/patientRoutes.js";
+import therapistRouter from "./routes/therapistRoutes.js";
+// import routes from "./routes/routes.js";
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 
 app.use("/patient", patientRouter);
+app.use("/therapist", therapistRouter);
 
 app.get("/", (req, res) => {
   console.log("qui");

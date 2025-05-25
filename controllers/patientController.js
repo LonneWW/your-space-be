@@ -1,8 +1,10 @@
-import express from "express";
 import Patient from "../models/Patient.js";
+import Note from "../models/Note.js";
+import Notification from "../models/Notification.js";
 
-const app = express();
 const patient = new Patient();
+const noteModel = new Note();
+const notificationModel = new Notification();
 
 class PatientController {
   async getTherapists(req, res) {
@@ -18,7 +20,21 @@ class PatientController {
   async changeTerapist(req, res) {
     try {
       const body = req.body;
-      const result = await patient.changeTerapistToNull(body);
+      await patient.changeTerapist(body);
+      return res.status(200).json({
+        message:
+          "You have successfully contacted the therapist. You'll receive a response soon.",
+      });
+    } catch (e) {
+      res.status(500).json({ error: "Serverside error." });
+      throw e;
+    }
+  }
+
+  async changeTerapistToNull(req, res) {
+    try {
+      const body = req.body;
+      await patient.changeTerapistToNull(body);
       return res
         .status(200)
         .json({ message: "You have successfully removed your therapist." });
@@ -30,8 +46,8 @@ class PatientController {
 
   async getNotes(req, res) {
     try {
-      const body = req.body;
-      const result = await patient.getNotes(body);
+      const { patient_id } = req.query;
+      const result = await noteModel.getNotes(patient_id);
       return res.status(200).json({ result });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -42,7 +58,7 @@ class PatientController {
   async postNote(req, res) {
     try {
       const body = req.body;
-      const result = await patient.createNote("patient", body);
+      await noteModel.postNote("patient", body);
       return res.status(200).json({ message: "Note posted successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -53,7 +69,7 @@ class PatientController {
   async updateNote(req, res) {
     try {
       const body = req.body;
-      const result = await patient.updateNote(body);
+      await noteModel.updateNote("patient", body);
       return res.status(200).json({ message: "Note updated successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -64,7 +80,7 @@ class PatientController {
   async deleteNote(req, res) {
     try {
       const body = req.body;
-      const result = await patient.deleteNote(body);
+      await noteModel.deleteNote("patient", body);
       return res.status(200).json({ message: "Note deleted successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -75,7 +91,7 @@ class PatientController {
   async changeNoteVisibility(req, res) {
     try {
       const body = req.body;
-      const result = await patient.updateNoteVisibility(body);
+      await noteModel.updateNoteVisibility(body);
       return res
         .status(200)
         .json({ message: "Visibility updated successfully." });
@@ -87,8 +103,9 @@ class PatientController {
 
   async getNotifications(req, res) {
     try {
-      const body = req.body;
-      const result = await patient.getNotifications("patient", body);
+      const { patient_id, therapist_id } = req.query;
+      const id = patient_id ? patient_id : therapist_id;
+      const result = await notificationModel.getNotifications("therapist", id);
       return res.status(200).json({ result });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -99,7 +116,7 @@ class PatientController {
   async sendNotification(req, res) {
     try {
       const body = req.body;
-      const result = await patient.postNotification("patient", body);
+      await notificationModel.postNotification("patient", body);
       return res
         .status(200)
         .json({ message: "Notification sent successfully." });
@@ -112,7 +129,7 @@ class PatientController {
   async deleteNotification(req, res) {
     try {
       const body = req.body;
-      const result = await patient.deleteNotification("patient", body);
+      await notificationModel.deleteNotification("patient", body);
       return res
         .status(200)
         .json({ message: "Notification deleted successfully." });
