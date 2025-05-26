@@ -10,17 +10,29 @@ class PatientController {
   async getTherapists(req, res) {
     try {
       const therapists = await patient.getTherapistsList();
-      return res.status(200).json({ therapists });
+      return res.status(200).json(therapists);
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
       throw e;
     }
   }
 
-  async changeTerapist(req, res) {
+  async getPatient(req, res) {
+    try {
+      const { id } = req.params;
+      const result = await patient.getPatient(id);
+      return res.status(200).json(result);
+    } catch (e) {
+      res.status(500).json({ error: "Serverside error." });
+      throw e;
+    }
+  }
+
+  async selectTerapist(req, res) {
     try {
       const body = req.body;
-      await patient.changeTerapist(body);
+      const { patient_id, therapist_id } = body;
+      await patient.selectTerapist(patient_id, therapist_id);
       return res.status(200).json({
         message:
           "You have successfully contacted the therapist. You'll receive a response soon.",
@@ -34,7 +46,8 @@ class PatientController {
   async changeTerapistToNull(req, res) {
     try {
       const body = req.body;
-      await patient.changeTerapistToNull(body);
+      const { patient_id, therapist_id } = body;
+      await patient.changeTerapistToNull(patient_id, therapist_id);
       return res
         .status(200)
         .json({ message: "You have successfully removed your therapist." });
@@ -48,7 +61,7 @@ class PatientController {
     try {
       const { patient_id } = req.query;
       const result = await noteModel.getNotes(patient_id);
-      return res.status(200).json({ result });
+      return res.status(200).json(result);
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
       throw e;
@@ -58,7 +71,8 @@ class PatientController {
   async postNote(req, res) {
     try {
       const body = req.body;
-      await noteModel.postNote("patient", body);
+      const { content, tags, patient_id } = body;
+      await noteModel.postNote("patient", content, tags, patient_id);
       return res.status(200).json({ message: "Note posted successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -69,7 +83,8 @@ class PatientController {
   async updateNote(req, res) {
     try {
       const body = req.body;
-      await noteModel.updateNote("patient", body);
+      const { note_id, content, tags, patient_id } = body;
+      await noteModel.updateNote("patient", note_id, content, tags, patient_id);
       return res.status(200).json({ message: "Note updated successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -79,8 +94,8 @@ class PatientController {
 
   async deleteNote(req, res) {
     try {
-      const body = req.body;
-      await noteModel.deleteNote("patient", body);
+      const { note_id, patient_id } = req.query;
+      await noteModel.deleteNote("patient", note_id, patient_id);
       return res.status(200).json({ message: "Note deleted successfully." });
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
@@ -91,7 +106,8 @@ class PatientController {
   async changeNoteVisibility(req, res) {
     try {
       const body = req.body;
-      await noteModel.updateNoteVisibility(body);
+      const { patient_id, note_id, shared } = body;
+      await noteModel.updateNoteVisibility(patient_id, note_id, shared);
       return res
         .status(200)
         .json({ message: "Visibility updated successfully." });
@@ -103,10 +119,12 @@ class PatientController {
 
   async getNotifications(req, res) {
     try {
-      const { patient_id, therapist_id } = req.query;
-      const id = patient_id ? patient_id : therapist_id;
-      const result = await notificationModel.getNotifications("therapist", id);
-      return res.status(200).json({ result });
+      const { patient_id } = req.query;
+      const result = await notificationModel.getNotifications(
+        "patient",
+        patient_id
+      );
+      return res.status(200).json(result);
     } catch (e) {
       res.status(500).json({ error: "Serverside error." });
       throw e;
@@ -116,7 +134,8 @@ class PatientController {
   async sendNotification(req, res) {
     try {
       const body = req.body;
-      await notificationModel.postNotification("patient", body);
+      const { patient_id, content } = body;
+      await notificationModel.postNotification("patient", patient_id, content);
       return res
         .status(200)
         .json({ message: "Notification sent successfully." });
@@ -128,8 +147,8 @@ class PatientController {
 
   async deleteNotification(req, res) {
     try {
-      const body = req.body;
-      await notificationModel.deleteNotification("patient", body);
+      const { notification_id } = req.query;
+      await notificationModel.deleteNotification("patient", notification_id);
       return res
         .status(200)
         .json({ message: "Notification deleted successfully." });

@@ -20,16 +20,16 @@ class Notification {
     return await QueryBuilder.query(query, params);
   }
 
-  async postNotification(role, body) {
+  async postNotification(role, patient_id, content, therapist_id = null) {
     const table = this.returnTableByRole(role);
-    Validator.validateValue("patient_id", body.patient_id);
-    Validator.validateValue("content", body.content);
+    Validator.validateValue("patient_id", patient_id);
+    Validator.validateValue("content", content);
     let params;
     if (role == "patient") {
-      params = [parseInt(body.patient_id, 10), body.content];
+      params = [parseInt(patient_id, 10), content];
     } else {
-      Validator.validateValue("therapist_id", body.therapist_id);
-      params = [parseInt(body.therapist_id, 10), body.content, body.patient_id];
+      Validator.validateValue("therapist_id", therapist_id);
+      params = [parseInt(therapist_id, 10), content, patient_id];
     }
     let query =
       `INSERT INTO \`${table}\` VALUES (null, ?,` +
@@ -39,13 +39,10 @@ class Notification {
     return QueryBuilder.query(query, params);
   }
 
-  async deleteNotification(role, body) {
+  async deleteNotification(role, notification_id) {
     let table = this.returnTableByRole(role);
-    Validator.validateValue("id", body.id);
-    const sanitizedId = parseInt(
-      role == "patient" ? body.patient_id : body.therapist_id,
-      10
-    );
+    Validator.validateValue("notification_id", notification_id);
+    const sanitizedId = parseInt(notification_id);
     const query = `DELETE FROM \`${table}\` WHERE id = ?;`;
     const params = [sanitizedId];
     return await QueryBuilder.query(query, params);

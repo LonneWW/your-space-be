@@ -1,6 +1,7 @@
 // server.js
 import dotenv from "dotenv";
 import express from "express";
+import cors from "cors";
 import patientRouter from "./routes/patientRoutes.js";
 import therapistRouter from "./routes/therapistRoutes.js";
 // import routes from "./routes/routes.js";
@@ -9,11 +10,29 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
+const allowedOrigins = [process.env.ONLINE_HOST];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Se non è definito l'origin, ad es. in chiamate da strumento come Postman, viene accettato
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      // L'origin è consentito
+      return callback(null, true);
+    } else {
+      // L'origin non è consentito
+      return callback(new Error("Origin not allowed by CORS policy"), false);
+    }
+  },
+  // Aggiungi eventuali altre opzioni qui, ad esempio methods, credentials, ecc.
+};
+app.use(cors(corsOptions)); // applichi cors a tutte le rotte
+
 app.use("/patient", patientRouter);
 app.use("/therapist", therapistRouter);
 
 app.get("/", (req, res) => {
-  console.log("qui");
+  return res.status(200).json({ message: "Beep bop." });
 });
 
 app.listen(3000);

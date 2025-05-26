@@ -4,6 +4,11 @@ import PatientController from "../controllers/patientController.js";
 const router = express.Router();
 const patientController = new PatientController();
 
+router.get("/:id", (req, res) => {
+  console.log("qui");
+  patientController.getPatient(req, res);
+});
+
 router.get("/therapists", (req, res) => {
   console.log("qui");
   patientController.getTherapists(req, res);
@@ -31,7 +36,7 @@ router.post("/notifications", (req, res) => {
 
 router.put("/therapist", (req, res) => {
   console.log("put therapist!");
-  patientController.changeTerapist(req, res);
+  patientController.selectTerapist(req, res);
 });
 
 router.put("/therapist-null", (req, res) => {

@@ -14,7 +14,8 @@ class Note {
     Validator.validateValue("therapist_id", therapist_id);
     let result;
     try {
-      const query = "SELECT * FROM Patients WHERE therapist_id = ?";
+      const query =
+        "SELECT id, name, surname FROM Patients WHERE therapist_id = ?";
       const param = [therapist_id];
       result = await QueryBuilder.query(query, param);
     } catch (e) {
@@ -41,11 +42,11 @@ class Note {
     }
   }
 
-  async getNotesAboutPatient(body) {
-    Validator.validateValue("therapist_id", body.therapist_id);
-    Validator.validateValue("patient_id", body.patient_id);
-    const sanitizedId = parseInt(body.therapist_id, 10);
-    const sanitizedPatientId = parseInt(body.patient_id, 10);
+  async getNotesAboutPatient(patient_id, therapist_id) {
+    Validator.validateValue("therapist_id", therapist_id);
+    Validator.validateValue("patient_id", patient_id);
+    const sanitizedId = parseInt(therapist_id, 10);
+    const sanitizedPatientId = parseInt(patient_id, 10);
     const tableName = `t_${sanitizedId}_Notes`;
     const query = `SELECT * FROM \`${tableName}\` WHERE patient_id = ?;`;
     console.log(query);
@@ -64,67 +65,63 @@ class Note {
     }
   }
 
-  async postNote(role, body) {
+  async postNote(role, content, tags, patient_id, therapist_id = null) {
     console.log(body);
-    Validator.validateValue("date", body.date);
-    Validator.validateValue("content", body.content);
-    Validator.validateValue("tags", body.tags);
-    const sanitizedId = parseInt(body.id, 10);
+    Validator.validateValue("content", content);
+    Validator.validateValue("tags", tags);
+    Validator.validateValue("patient_id", patient_id);
+    const sanitizedId = parseInt(therapist_id ? therapist_id : patient_id, 10);
     let tableName;
     let params;
     if (role == "patient") {
-      Validator.validateValue("patient_id", body.patient_id);
-      Validator.validateValue("shared", body.shared);
+      Validator.validateValue("shared", shared);
       tableName = `p_${sanitizedId}_Notes`;
       params = [
         null,
         sanitizedId,
-        JSON.stringify(body.content),
-        JSON.stringify(body.tags),
-        body.date,
-        body.shared,
+        JSON.stringify(content),
+        JSON.stringify(tags),
+        shared,
       ];
     } else if (role == "therapist") {
-      Validator.validateValue("therapist_id", body.therapist_id);
-      Validator.validateValue("patient_id", body.patient_id);
+      Validator.validateValue("therapist_id", therapist_id);
       tableName = `t_${sanitizedId}_Notes`;
-      const sanitizedPatientId = parseInt(body.patient_id, 10);
+      const sanitizedPatientId = parseInt(patient_id, 10);
       params = [
         null,
         sanitizedPatientId,
-        JSON.stringify(body.content),
-        JSON.stringify(body.tags),
-        body.date,
+        JSON.stringify(content),
+        JSON.stringify(tags),
         sanitizedId,
       ];
     } else {
       throw console.error("Unrecognized user role");
     }
     await this.createNotesTable(role, tableName);
-    let query = `INSERT INTO \`${tableName}\` VALUES (?, ?, ?, ?, ?, ?)`; //da modificare in base alle colonne delle tabelle
+    let query = `INSERT INTO \`${tableName}\` VALUES (?, ?, ?, ?, NOW(), ?)`; //da modificare in base alle colonne delle tabelle
     return await QueryBuilder.query(query, params);
   }
 
-  async updateNote(role, body) {
-    Validator.validateValue("note_id", body.note_id);
-    Validator.validateValue("content", body.content);
-    Validator.validateValue("tags", body.tags);
-    const sanitizedNoteId = parseInt(body.note_id, 10);
-    let sanitizedId;
+  async updateNote(role, note_id, content, tags, id) {
+    Validator.validateValue("note_id", note_id);
+    Validator.validateValue("content", content);
+    Validator.validateValue("tags", tags);
+    Validator.validateValue(role + "_id", id);
+    const sanitizedNoteId = parseInt(note_id, 10);
+    let sanitizedId = parseInt(patient_id, 10);
     let tableName;
     if (role == "patient") {
-      Validator.validateValue("patient_id", body.patient_id);
-      sanitizedId = parseInt(body.patient_id, 10);
+      sanitizedId = parseInt(patient_id, 10);
       tableName = `p_${sanitizedId}_Notes`;
     } else {
-      Validator.validateValue("therapist_id", body.therapist_id);
-      sanitizedId = parseInt(body.therapist_id, 10);
+      Validator.validateValue("therapist_id", therapist_id);
+      sanitizedId = parseInt(therapist_id, 10);
       tableName = `t_${sanitizedId}_Notes`;
     }
     const query = `UPDATE \`${tableName}\` SET content = ?, tags = ? WHERE id = ?;`;
     let params = [
-      JSON.stringify(body.content),
-      JSON.stringify(body.tags),
+      JSON.stringify(content),
+      JSON.stringify(tags),
       sanitizedNoteId,
     ];
     console.log(query);
@@ -132,31 +129,28 @@ class Note {
     return await QueryBuilder.query(query, params);
   }
 
-  async updateNoteVisibility(body) {
-    Validator.validateValue("patient_id", body.patient_id);
-    Validator.validateValue("note_id", body.note_id);
-    Validator.validateValue("shared", body.shared);
-    const sanitizedNoteId = parseInt(body.note_id, 10);
-    const sanitizedPatientId = parseInt(body.patient_id, 10);
-    const sanitizedShareValue = parseInt(body.shared, 10);
+  async updateNoteVisibility(patient_id, note_id, shared) {
+    Validator.validateValue("patient_id", patient_id);
+    Validator.validateValue("note_id", note_id);
+    Validator.validateValue("shared", shared);
+    const sanitizedNoteId = parseInt(note_id, 10);
+    const sanitizedPatientId = parseInt(patient_id, 10);
+    const sanitizedShareValue = parseInt(shared, 10);
     const tableName = `_${sanitizedPatientId}_Notes`;
     const query = `UPDATE \`${tableName}\` SET shared = ? WHERE id = ?;`;
     let params = [sanitizedShareValue, sanitizedNoteId];
     return await QueryBuilder.query(query, params);
   }
 
-  async deleteNote(role, body) {
-    Validator.validateValue("note_id", body.note_id);
-    const sanitizedNoteId = parseInt(body.note_id, 10);
-    let sanitizedId;
+  async deleteNote(role, note_id, id) {
+    Validator.validateValue("note_id", note_id);
+    Validator.validateValue(role + "_id", id);
+    const sanitizedNoteId = parseInt(note_id, 10);
+    let sanitizedId = parseInt(id, 10);
     let tableName;
     if (role == "patient") {
-      Validator.validateValue("patient_id", body.patient_id);
-      sanitizedId = parseInt(body.patient_id, 10);
       tableName = `p_${sanitizedId}_Notes`;
     } else {
-      Validator.validateValue("therapist_id", body.therapist_id);
-      sanitizedId = parseInt(body.therapist_id, 10);
       tableName = `t_${sanitizedId}_Notes`;
     }
     const query = `DELETE FROM \`${tableName}\` WHERE id = ?;`;
