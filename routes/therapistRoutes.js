@@ -4,59 +4,59 @@ import TherapistController from "../controllers/therapistController.js";
 const router = express.Router();
 const therapistController = new TherapistController();
 
-router.get("/:id", (req, res) => {
+router.get("/:id", (req, res, next) => {
   console.log("qui");
-  therapistController.getTherapist(req, res);
+  therapistController.getTherapist(req, res, next);
 });
 
-router.get("/patients", (req, res) => {
+router.get("/patients", (req, res, next) => {
   console.log("get therapist patients");
-  therapistController.getTherapistPatients(req, res);
+  therapistController.getTherapistPatients(req, res, next);
 });
 
-router.get("/patient-notes", (req, res) => {
+router.get("/patient-notes", (req, res, next) => {
   console.log("get patient notes");
-  therapistController.getPatientNotes(req, res);
+  therapistController.getPatientNotes(req, res, next);
 });
 
-router.get("/notes-about-patient", (req, res) => {
+router.get("/notes-about-patient", (req, res, next) => {
   console.log("get notes about patient");
-  therapistController.getNotesAboutPatient(req, res);
+  therapistController.getNotesAboutPatient(req, res, next);
 });
 
-router.get("/notifications", (req, res) => {
+router.get("/notifications", (req, res, next) => {
   console.log("get notification!");
-  therapistController.getNotifications(req, res);
+  therapistController.getNotifications(req, res, next);
 });
 
-router.post("/notes", (req, res) => {
+router.post("/notes", (req, res, next) => {
   console.log("note posted");
-  therapistController.createNote(req, res);
+  therapistController.createNote(req, res, next);
 });
 
-router.post("/notifications", (req, res) => {
+router.post("/notifications", (req, res, next) => {
   console.log("post notification!");
-  therapistController.sendNotification(req, res);
+  therapistController.sendNotification(req, res, next);
 });
 
-router.put("/notes", (req, res) => {
+router.put("/notes", (req, res, next) => {
   console.log("note modify");
-  therapistController.updateNote(req, res);
+  therapistController.updateNote(req, res, next);
 });
 
-router.put("/patient", (req, res) => {
+router.put("/patient", (req, res, next) => {
   console.log("put patient");
-  therapistController.acceptPatient(req, res);
+  therapistController.acceptPatient(req, res, next);
 });
 
-router.delete("/notes", (req, res) => {
+router.delete("/notes", (req, res, next) => {
   console.log("note delete");
-  therapistController.deleteNote(req, res);
+  therapistController.deleteNote(req, res, next);
 });
 
-router.delete("/notifications", (req, res) => {
+router.delete("/notifications", (req, res, next) => {
   console.log("delete notification!");
-  therapistController.deleteNotification(req, res);
+  therapistController.deleteNotification(req, res, next);
 });
 
 export default router;

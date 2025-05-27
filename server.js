@@ -4,6 +4,8 @@ import express from "express";
 import cors from "cors";
 import patientRouter from "./routes/patientRoutes.js";
 import therapistRouter from "./routes/therapistRoutes.js";
+import authRouter from "./routes/authRoutes.js";
+import errorHandler from "./utils/ErrorHandler.js";
 // import routes from "./routes/routes.js";
 dotenv.config();
 
@@ -30,10 +32,13 @@ app.use(cors(corsOptions)); // applichi cors a tutte le rotte
 
 app.use("/patient", patientRouter);
 app.use("/therapist", therapistRouter);
+app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {
   return res.status(200).json({ message: "Beep bop." });
 });
+
+app.use(errorHandler);
 
 app.listen(3000);
 

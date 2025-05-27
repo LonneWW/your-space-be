@@ -1,21 +1,39 @@
 import QueryBuilder from "../utils/QueryBuilder.js";
-
+import { ApiError } from "../utils/ApiError.js";
 class Therapist {
   async getTherapist(id) {
-    const query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
-    const sanitizedId = parseInt(id, 10);
-    const param = [sanitizedId];
-    return QueryBuilder.query(query, param);
+    try {
+      const query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
+      const sanitizedId = parseInt(id, 10);
+      const param = [sanitizedId];
+      return QueryBuilder.query(query, param);
+    } catch {
+      throw new ApiError(
+        500,
+        "Couldn't obtain therapists data, server-side error"
+      );
+    }
   }
 
   async getTherapistPatients(therapist_id) {
-    const sanitizedId = parseInt(therapist_id, 10);
-    const query =
-      "SELECT id, name, surname FROM Patients WHERE therapist_id = ?;";
-    const params = [sanitizedId];
-    const result = await QueryBuilder.query(query, params);
-    if (result.length < 1) {
-      return { message: "No patients found." };
+    try {
+      const sanitizedId = parseInt(therapist_id, 10);
+      const query =
+        "SELECT id, name, surname FROM Patients WHERE therapist_id = ?;";
+      const params = [sanitizedId];
+      const result = await QueryBuilder.query(query, params);
+      if (result.length < 1) {
+        throw new ApiError(404, "No patient found linked to this therapist");
+      }
+    } catch (e) {
+      if (e.statusCode == 404) {
+        throw e;
+      } else {
+        throw new ApiError(
+          500,
+          "Couldn't obtain therapist's patients, server-side error"
+        );
+      }
     }
   }
 
@@ -26,8 +44,12 @@ class Therapist {
     let params = [sanitizedPatientId];
     try {
       await QueryBuilder.query(query, params);
-      query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
-      params = [sanitizedId];
+    } catch {
+      throw new ApiError(500, `Couldn't discharge patient, server-side error.`);
+    }
+    query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
+    params = [sanitizedId];
+    try {
       let result = await QueryBuilder.query(query, params);
       result = result[0];
       console.log(result);
@@ -35,8 +57,11 @@ class Therapist {
         patient_id: sanitizedPatientId,
         content: `The therapist ${result.name} ${result.surname} decided to interrupt the link.`,
       });
-    } catch (e) {
-      throw console.error(e);
+    } catch {
+      throw new ApiError(
+        500,
+        `Patient discharged correctly. Couldn't send notifiction, server-side error.`
+      );
     }
   }
 
@@ -56,8 +81,10 @@ class Therapist {
         patient_id: sanitizedPatientId,
         content: `The therapist ${result.name} ${result.surname} has accepted to link with you.`,
       });
-    } catch (e) {
-      throw console.error(e);
+    } catch {
+      throw new ApiError(
+        `Couldn't accept patient correctly, server-side error.`
+      );
     }
   }
 }

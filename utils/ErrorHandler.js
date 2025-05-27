@@ -1,8 +1,10 @@
-import express from "express";
-
-const app = express();
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
+// errorHandler.js
+export default function errorHandler(error, req, res, next) {
+  console.log("mmmiddlewaaare");
+  error.statusCode = error.statusCode || 500;
+  error.status = error.status || "error";
+  res.status(error.statusCode).json({
+    status: error.statusCode,
+    message: error.message,
+  });
+}
