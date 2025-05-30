@@ -24,4 +24,8 @@ router.post("/login/patient", (req, res, next) => {
   authController.loginPatient(req, res, next);
 });
 
+router.get("/", (req, res, next) => {
+  authController.isLoggedIn(req, res, next);
+});
+
 export default router;

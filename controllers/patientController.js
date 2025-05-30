@@ -20,6 +20,8 @@ class PatientController {
   async getPatient(req, res, next) {
     try {
       const { id } = req.params;
+      console.log(id);
+      console.log(req.params);
       const result = await patient.getPatient(id);
       return res.status(200).json(result);
     } catch (e) {

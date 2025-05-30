@@ -7,7 +7,8 @@ class Patient {
     try {
       const query = "SELECT id, name, surname FROM Therapists;";
       return await QueryBuilder.query(query);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't obtain therapists list, server-side error"
@@ -22,7 +23,8 @@ class Patient {
       const sanitizedId = parseInt(id, 10);
       const param = [sanitizedId];
       return QueryBuilder.query(query, param);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(500, "Couldn't get patient data, server-side error");
     }
   }
@@ -60,6 +62,7 @@ class Patient {
         patient_id: sanitizedId,
       });
     } catch (e) {
+      console.log(e);
       throw new ApiError(500, "Couldn't unlink therapist, server-side error");
     }
   }

@@ -20,7 +20,8 @@ class Notification {
       const query = `SELECT * FROM \`${table}\` WHERE \`${condition}\` = ?;`;
       const params = [sanitizedId];
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't get any notification, server-side error"
@@ -46,7 +47,8 @@ class Notification {
         `?);`;
       console.log(query);
       return QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't post the notification, server-side error"
@@ -62,7 +64,8 @@ class Notification {
       const query = `DELETE FROM \`${table}\` WHERE id = ?;`;
       const params = [sanitizedId];
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't delete the notification, server-side error"

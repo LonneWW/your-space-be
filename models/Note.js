@@ -10,6 +10,7 @@ class Note {
       const query = `SELECT * FROM \`${tableName}\`;`;
       return await QueryBuilder.query(query);
     } catch {
+      console.error(error);
       throw new ApiError(500, "Couldn't get notes, server-side error");
     }
   }
@@ -24,6 +25,7 @@ class Note {
       const param = [therapist_id];
       result = await QueryBuilder.query(query, param);
     } catch (e) {
+      console.error(error);
       throw new ApiError(
         500,
         "Couldn't get user data in order to obtain notes, server-side error"
@@ -40,6 +42,7 @@ class Note {
         }
         return result;
       } catch (e) {
+        console.error(error);
         if ((e.code = "ER_NO_SUCH_TABLE")) {
           return { message: "No notes shared." };
         }
@@ -65,6 +68,7 @@ class Note {
       }
       return result;
     } catch (e) {
+      console.log(e);
       if ((e.code = "ER_NO_SUCH_TABLE")) {
         throw new ApiError(404, "No notes available");
       }
@@ -110,7 +114,8 @@ class Note {
       await this.createNotesTable(role, tableName);
       let query = `INSERT INTO \`${tableName}\` VALUES (?, ?, ?, ?, NOW(), ?)`; //da modificare in base alle colonne delle tabelle
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(500, "Couldn't post note, server-side error");
     }
   }
@@ -141,7 +146,8 @@ class Note {
       console.log(query);
       console.log(params);
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(500, "Couldn't update note, server-side error");
     }
   }
@@ -158,7 +164,8 @@ class Note {
       const query = `UPDATE \`${tableName}\` SET shared = ? WHERE id = ?;`;
       let params = [sanitizedShareValue, sanitizedNoteId];
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't change note visibility, server-side error"
@@ -181,7 +188,8 @@ class Note {
       const query = `DELETE FROM \`${tableName}\` WHERE id = ?;`;
       let params = [sanitizedNoteId];
       return await QueryBuilder.query(query, params);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(500, "Couldn't delete note, server-side error");
     }
   }

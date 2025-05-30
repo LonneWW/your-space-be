@@ -7,7 +7,8 @@ class Therapist {
       const sanitizedId = parseInt(id, 10);
       const param = [sanitizedId];
       return QueryBuilder.query(query, param);
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         "Couldn't obtain therapists data, server-side error"
@@ -26,6 +27,7 @@ class Therapist {
         throw new ApiError(404, "No patient found linked to this therapist");
       }
     } catch (e) {
+      console.log(e);
       if (e.statusCode == 404) {
         throw e;
       } else {
@@ -57,7 +59,8 @@ class Therapist {
         patient_id: sanitizedPatientId,
         content: `The therapist ${result.name} ${result.surname} decided to interrupt the link.`,
       });
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         500,
         `Patient discharged correctly. Couldn't send notifiction, server-side error.`
@@ -81,7 +84,8 @@ class Therapist {
         patient_id: sanitizedPatientId,
         content: `The therapist ${result.name} ${result.surname} has accepted to link with you.`,
       });
-    } catch {
+    } catch (e) {
+      console.log(e);
       throw new ApiError(
         `Couldn't accept patient correctly, server-side error.`
       );
