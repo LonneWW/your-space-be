@@ -7,6 +7,7 @@ const pool = mysql.createPool({
   user: process.env.DB_USER, // definito al momento della creazione del DB su Render
   password: process.env.DB_PASSWORD, // come configurato su Render
   database: process.env.DB_NAME, // il nome del database
+  multipleStatements: true,
 });
 
 export default pool;

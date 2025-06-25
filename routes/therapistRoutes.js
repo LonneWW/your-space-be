@@ -4,14 +4,14 @@ import TherapistController from "../controllers/therapistController.js";
 const router = express.Router();
 const therapistController = new TherapistController();
 
-router.get("/:id", (req, res, next) => {
-  console.log("qui");
-  therapistController.getTherapist(req, res, next);
-});
-
 router.get("/patients", (req, res, next) => {
   console.log("get therapist patients");
   therapistController.getTherapistPatients(req, res, next);
+});
+
+router.get("/notes", (req, res, next) => {
+  console.log("get notes!");
+  therapistController.getNotes(req, res, next);
 });
 
 router.get("/patient-notes", (req, res, next) => {
@@ -29,9 +29,14 @@ router.get("/notifications", (req, res, next) => {
   therapistController.getNotifications(req, res, next);
 });
 
+router.get("/:id", (req, res, next) => {
+  console.log("qui");
+  therapistController.getTherapist(req, res, next);
+});
+
 router.post("/notes", (req, res, next) => {
   console.log("note posted");
-  therapistController.createNote(req, res, next);
+  therapistController.postNote(req, res, next);
 });
 
 router.post("/notifications", (req, res, next) => {
@@ -44,9 +49,14 @@ router.put("/notes", (req, res, next) => {
   therapistController.updateNote(req, res, next);
 });
 
-router.put("/patient", (req, res, next) => {
+router.put("/accept-patient", (req, res, next) => {
   console.log("put patient");
   therapistController.acceptPatient(req, res, next);
+});
+
+router.put("/discharge-patient", (req, res, next) => {
+  console.log("put patient");
+  therapistController.dischargePatient(req, res, next);
 });
 
 router.delete("/notes", (req, res, next) => {

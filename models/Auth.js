@@ -1,13 +1,15 @@
 import bcrypt from "bcrypt";
 import QueryBuilder from "../utils/QueryBuilder.js";
+import dotenv from "dotenv";
 import { ApiError } from "../utils/ApiError.js";
+dotenv.config();
 
-const saltRounds = 10;
+const saltRounds = Number(process.env.SALT_ROUNDS);
 
 class Auth {
   async registerUser(role, name, surname, email, password) {
     try {
-      this.checkIfEmailIsAlreadyUsed(email);
+      await this.checkIfEmailIsAlreadyUsed(email);
       let query =
         "INSERT INTO " +
         (role == "patient" ? "Patients" : "Therapists") +
@@ -21,10 +23,12 @@ class Auth {
         query = query + "?);";
         params = [null, name, surname, email, hash];
       }
-      let result = await QueryBuilder.query(query, params);
-      return this.getUserData(role, email);
+      await QueryBuilder.query(query, params);
+      const userData = this.getUserData(role, email);
+      return userData;
     } catch (error) {
       console.error(error);
+      console.log("heilà gamberone");
       if (error.statusCode == 409) {
         throw error;
       }
@@ -55,12 +59,20 @@ class Auth {
             surname: body.surname,
             therapist_id: body.therapist_id,
           };
+        } else {
+          throw new ApiError(
+            401,
+            "The password is incorrect, please try again."
+          );
         }
       } else {
         throw new ApiError(404, "The email is not registered.");
       }
     } catch (error) {
       console.error(error);
+      if (error.statusCode) {
+        throw error;
+      }
       throw new ApiError(500, "Couldn't log in, server-side error");
     }
   }

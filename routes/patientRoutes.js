@@ -34,7 +34,7 @@ router.put("/therapist", (req, res, next) => {
   patientController.selectTerapist(req, res, next);
 });
 
-router.put("/therapist-null", (req, res, next) => {
+router.put("/unlink-therapist", (req, res, next) => {
   console.log("put therapist-null!");
   patientController.changeTerapistToNull(req, res, next);
 });

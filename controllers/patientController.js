@@ -34,7 +34,14 @@ class PatientController {
     try {
       const body = req.body;
       const { patient_id, therapist_id } = body;
-      await patient.selectTerapist(patient_id, therapist_id);
+      await patient.changeTherapistToPending(patient_id);
+      const patientDataArray = await patient.getPatient(patient_id);
+      await notificationModel.postNotification(
+        "therapist",
+        patient_id,
+        `The patient ${patientDataArray[0].name} ${patientDataArray[0].surname} would like to link with you.`,
+        therapist_id
+      );
       return res.status(200).json({
         message:
           "You have successfully contacted the therapist. You'll receive a response soon.",
@@ -61,8 +68,9 @@ class PatientController {
 
   async getNotes(req, res, next) {
     try {
-      const { patient_id } = req.query;
-      const result = await noteModel.getNotes(patient_id);
+      const { patient_id, note_id, title, tag, dateFrom, dateTo } = req.query;
+      const filters = { note_id, title, tag, dateFrom, dateTo };
+      const result = await noteModel.getNotes("patient", patient_id, filters);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);
@@ -73,8 +81,8 @@ class PatientController {
   async postNote(req, res, next) {
     try {
       const body = req.body;
-      const { content, tags, patient_id } = body;
-      await noteModel.postNote("patient", content, tags, patient_id);
+      const { content, title, tags, patient_id } = body;
+      await noteModel.postNote("patient", title, content, tags, patient_id);
       return res.status(200).json({ message: "Note posted successfully." });
     } catch (e) {
       console.log(e);
@@ -85,8 +93,16 @@ class PatientController {
   async updateNote(req, res, next) {
     try {
       const body = req.body;
-      const { note_id, content, tags, patient_id } = body;
-      await noteModel.updateNote("patient", note_id, content, tags, patient_id);
+      console.log(body);
+      const { note_id, title, content, tags, patient_id } = body;
+      await noteModel.updateNote(
+        "patient",
+        note_id,
+        title,
+        content,
+        tags,
+        patient_id
+      );
       return res.status(200).json({ message: "Note updated successfully." });
     } catch (e) {
       console.log(e);

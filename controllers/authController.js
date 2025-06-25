@@ -1,7 +1,8 @@
 import Auth from "../models/Auth.js";
+import Note from "../models/Note.js";
 
 const auth = new Auth();
-
+const noteModel = new Note();
 class AuthController {
   async registerTherapist(req, res, next) {
     try {
@@ -14,6 +15,8 @@ class AuthController {
         email,
         password
       );
+      console.log(result);
+      await noteModel.setUserTable("therapist", result[0].id);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);
@@ -32,6 +35,7 @@ class AuthController {
         email,
         password
       );
+      await noteModel.setUserTable("patient", result[0].id);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);

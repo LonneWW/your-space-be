@@ -19,6 +19,7 @@ class Therapist {
   async getTherapistPatients(therapist_id) {
     try {
       const sanitizedId = parseInt(therapist_id, 10);
+      console.log(sanitizedId);
       const query =
         "SELECT id, name, surname FROM Patients WHERE therapist_id = ?;";
       const params = [sanitizedId];
@@ -26,6 +27,7 @@ class Therapist {
       if (result.length < 1) {
         throw new ApiError(404, "No patient found linked to this therapist");
       }
+      return result;
     } catch (e) {
       console.log(e);
       if (e.statusCode == 404) {
@@ -39,32 +41,58 @@ class Therapist {
     }
   }
 
+  // async dischargePatient(therapist_id, patient_id) {
+  //   const sanitizedId = parseInt(therapist_id, 10);
+  //   const sanitizedPatientId = parseInt(patient_id, 10);
+  //   let query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
+  //   let params = [sanitizedPatientId];
+  //   try {
+  //     await QueryBuilder.query(query, params);
+  //   } catch {
+  //     throw new ApiError(500, `Couldn't discharge patient, server-side error.`);
+  //   }
+  //   query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
+  //   params = [sanitizedId];
+  //   try {
+  //     let result = await QueryBuilder.query(query, params);
+  //     result = result[0];
+  //     console.log(result);
+  //     return await this.postNotification("patient", {
+  //       patient_id: sanitizedPatientId,
+  //       content: `The therapist ${result.name} ${result.surname} decided to interrupt/reject the link.`,
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new ApiError(
+  //       500,
+  //       `Patient discharged correctly. Couldn't send notifiction, server-side error.`
+  //     );
+  //   }
+  // }
+
   async dischargePatient(therapist_id, patient_id) {
     const sanitizedId = parseInt(therapist_id, 10);
     const sanitizedPatientId = parseInt(patient_id, 10);
-    let query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
-    let params = [sanitizedPatientId];
+    //get patient data
+    let query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
+    let param = [sanitizedId];
+    let result = await QueryBuilder.query(query, param);
+    result = result[0];
+    console.log(result);
+    console.log(therapist_id);
+    //build response message
+    let message =
+      `The therapist ${result.name} ${result.surname} decided to ` +
+      (result.id == therapist_id ? "interrupt" : "reject") +
+      ` the link.`;
+    //update patiente table
+    query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
+    param = [sanitizedPatientId];
     try {
-      await QueryBuilder.query(query, params);
+      await QueryBuilder.query(query, param);
+      return message;
     } catch {
       throw new ApiError(500, `Couldn't discharge patient, server-side error.`);
-    }
-    query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
-    params = [sanitizedId];
-    try {
-      let result = await QueryBuilder.query(query, params);
-      result = result[0];
-      console.log(result);
-      return await this.postNotification("patient", {
-        patient_id: sanitizedPatientId,
-        content: `The therapist ${result.name} ${result.surname} decided to interrupt the link.`,
-      });
-    } catch (e) {
-      console.log(e);
-      throw new ApiError(
-        500,
-        `Patient discharged correctly. Couldn't send notifiction, server-side error.`
-      );
     }
   }
 
@@ -80,10 +108,7 @@ class Therapist {
       let result = await QueryBuilder.query(query, params);
       result = result[0];
       console.log(result);
-      return await this.postNotification("patient", {
-        patient_id: sanitizedPatientId,
-        content: `The therapist ${result.name} ${result.surname} has accepted to link with you.`,
-      });
+      return result;
     } catch (e) {
       console.log(e);
       throw new ApiError(

@@ -30,10 +30,10 @@ class Patient {
   }
 
   async selectTerapist(patient_id, therapist_id) {
-    Validator.validateValue("patient_id", patient_id);
     Validator.validateValue("therapist_id", therapist_id);
     const sanitizedId = parseInt(patient_id, 10);
     const sanitizedTherapistId = parseInt(therapist_id, 10);
+    await this.changeTherapistToPending(patient_id);
     let result = await this.getPatient(sanitizedId);
     result = result[0];
     return await this.postNotification("therapist", {
@@ -41,6 +41,21 @@ class Patient {
       content: `The patient ${result.name} ${result.surname} would like to link with you.`,
       patient_id: sanitizedId,
     });
+  }
+
+  async changeTherapistToPending(patient_id) {
+    Validator.validateValue("patient_id", patient_id);
+    try {
+      let query = "UPDATE Patients SET therapist_id = 0 WHERE id = ?;";
+      let param = [patient_id];
+      return QueryBuilder.query(query, param);
+    } catch (e) {
+      console.log(e);
+      throw new ApiError(
+        500,
+        "Couldn't set therapist status to 'pending', server-side error"
+      );
+    }
   }
 
   async changeTerapistToNull(patient_id, therapist_id) {

@@ -1,6 +1,7 @@
 import Therapist from "../models/Therapist.js";
 import Note from "../models/Note.js";
 import Notification from "../models/Notification.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const therapist = new Therapist();
 const noteModel = new Note();
@@ -21,6 +22,7 @@ class TherapistController {
   async getTherapistPatients(req, res, next) {
     try {
       const { therapist_id } = req.query;
+      console.log(therapist_id);
       const patients = await therapist.getTherapistPatients(therapist_id);
       return res.status(200).json({ patients });
     } catch (e) {
@@ -29,13 +31,16 @@ class TherapistController {
     }
   }
 
-  async dischargePatient(req, res, next) {
+  async getNotes(req, res, next) {
     try {
-      const { therapist_id, patient_id } = req.body;
-      await therapist.dischargePatient(therapist_id, patient_id);
-      return res
-        .status(200)
-        .json({ message: "Patient discharged successfully." });
+      const { therapist_id, note_id, title, tag, dateFrom, dateTo } = req.query;
+      const filters = { note_id, title, tag, dateFrom, dateTo };
+      const result = await noteModel.getNotes(
+        "therapist",
+        therapist_id,
+        filters
+      );
+      return res.status(200).json(result);
     } catch (e) {
       console.log(e);
       next(e);
@@ -68,13 +73,14 @@ class TherapistController {
     }
   }
 
-  async createNote(req, res, next) {
+  async postNote(req, res, next) {
     try {
       console.log(req.body);
       const body = req.body;
-      const { content, tags, patient_id, therapist_id } = body;
+      const { content, title, tags, patient_id, therapist_id } = body;
       await noteModel.postNote(
         "therapist",
+        title,
         content,
         tags,
         patient_id,
@@ -89,10 +95,12 @@ class TherapistController {
   async updateNote(req, res, next) {
     try {
       const body = req.body;
+      console.log(body);
       const { content, tags, therapist_id, note_id } = body;
       await noteModel.updateNote(
         "therapist",
         note_id,
+        "Patient note",
         content,
         tags,
         therapist_id
@@ -118,6 +126,8 @@ class TherapistController {
   async getNotifications(req, res, next) {
     try {
       const { therapist_id } = req.query;
+      console.log(therapist_id);
+      console.log("AAAAAAAAAH");
       const result = await notificationModel.getNotifications(
         "therapist",
         therapist_id
@@ -164,8 +174,57 @@ class TherapistController {
   async acceptPatient(req, res, next) {
     try {
       const { therapist_id, patient_id } = req.body;
-      await therapist.acceptPatient(therapist_id, patient_id);
+      console.log(req.body);
+      const user = await therapist.acceptPatient(therapist_id, patient_id);
+      await noteModel.postNote(
+        "therapist",
+        `New Patient Note`,
+        '{"ops":[{"insert":"New note"}]}',
+        null,
+        patient_id,
+        therapist_id
+      );
+      await notificationModel.postNotification(
+        "patient",
+        patient_id,
+        `The therapist ${user.name} ${user.surname} has accepted to link with you.`
+      );
       return res.status(200).json({ message: "Linked successfully." });
+    } catch (e) {
+      console.log(e);
+      next(e);
+    }
+  }
+
+  async dischargePatient(req, res, next) {
+    try {
+      const { therapist_id, patient_id } = req.body;
+      const message = await therapist.dischargePatient(
+        therapist_id,
+        patient_id
+      );
+      try {
+        const note = await noteModel.getNotesAboutPatient(
+          patient_id,
+          therapist_id
+        );
+        console.log(note);
+        await noteModel.deleteNote("therapist", note[0].id, therapist_id);
+        await notificationModel.postNotification(
+          "patient",
+          patient_id,
+          message
+        );
+      } catch (e) {
+        console.log(e);
+        throw new ApiError(
+          500,
+          `Patient discharged correctly. Couldn't send notifiction, server-side error.`
+        );
+      }
+      return res
+        .status(200)
+        .json({ message: "Patient discharged successfully." });
     } catch (e) {
       console.log(e);
       next(e);

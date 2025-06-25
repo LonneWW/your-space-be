@@ -79,7 +79,7 @@ class Notification {
     } else if (role == "therapist") {
       return `Therapists_Notifications`;
     } else {
-      throw console.error("Unrecognized user role");
+      throw new ApiError(500, "Unrecognized user role");
     }
   }
 }
