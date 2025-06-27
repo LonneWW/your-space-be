@@ -20,8 +20,6 @@ class PatientController {
   async getPatient(req, res, next) {
     try {
       const { id } = req.params;
-      console.log(id);
-      console.log(req.params);
       const result = await patient.getPatient(id);
       return res.status(200).json(result);
     } catch (e) {
@@ -56,7 +54,13 @@ class PatientController {
     try {
       const body = req.body;
       const { patient_id, therapist_id } = body;
-      await patient.changeTerapistToNull(patient_id, therapist_id);
+      let result = await patient.changeTerapistToNull(patient_id, therapist_id);
+      await notificationModel.postNotification(
+        "therapist",
+        patient_id,
+        `The patient ${result.name} ${result.surname} decided to interrupt the link.`,
+        therapist_id
+      );
       return res
         .status(200)
         .json({ message: "You have successfully removed your therapist." });
@@ -93,7 +97,6 @@ class PatientController {
   async updateNote(req, res, next) {
     try {
       const body = req.body;
-      console.log(body);
       const { note_id, title, content, tags, patient_id } = body;
       await noteModel.updateNote(
         "patient",

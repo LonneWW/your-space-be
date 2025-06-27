@@ -67,15 +67,11 @@ class Patient {
     let params = [sanitizedId];
     try {
       await QueryBuilder.query(query, params);
-      query = "SELECT id, name, surname FROM Patients WHERE id = ?";
+      query =
+        "SELECT id, name, surname, therapist_id FROM Patients WHERE id = ?";
       let result = await QueryBuilder.query(query, params);
       result = result[0];
-      console.log(result);
-      return await this.postNotification("therapist", {
-        therapist_id: sanitizedTherapistId,
-        content: `The patient ${result.name} ${result.surname} decided to interrupt the link.`,
-        patient_id: sanitizedId,
-      });
+      return result;
     } catch (e) {
       console.log(e);
       throw new ApiError(500, "Couldn't unlink therapist, server-side error");

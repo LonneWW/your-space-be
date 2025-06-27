@@ -28,7 +28,6 @@ class Auth {
       return userData;
     } catch (error) {
       console.error(error);
-      console.log("heilà gamberone");
       if (error.statusCode == 409) {
         throw error;
       }
@@ -48,8 +47,6 @@ class Auth {
       const userData = await QueryBuilder.query(query, param);
       if (userData.length == 1) {
         const storedHash = userData[0].password;
-        console.log("stored has:" + storedHash);
-        console.log("password inserita:" + password);
         const isMatch = await bcrypt.compare(password, storedHash);
         if (isMatch) {
           const body = userData[0];
@@ -103,17 +100,13 @@ class Auth {
   }
 
   async isLoggedIn(role, id, name, surname) {
-    console.log(role, id, name, surname);
     try {
       const query =
         "SELECT name, surname FROM " +
         (role == "patient" ? "Patients" : "Therapists") +
         " WHERE name = ? AND surname = ? AND id = ?";
-      console.log(query);
       const params = [name, surname, id];
-      console.log(params);
       const result = await QueryBuilder.query(query, params);
-      console.log(result);
       return result;
     } catch (e) {
       console.log(e);

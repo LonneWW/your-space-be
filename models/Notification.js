@@ -45,7 +45,6 @@ class Notification {
         `INSERT INTO \`${table}\` VALUES (null, ?,` +
         (role == "patient" ? "" : ` ?, `) +
         `?);`;
-      console.log(query);
       return QueryBuilder.query(query, params);
     } catch (e) {
       console.log(e);

@@ -22,7 +22,6 @@ class TherapistController {
   async getTherapistPatients(req, res, next) {
     try {
       const { therapist_id } = req.query;
-      console.log(therapist_id);
       const patients = await therapist.getTherapistPatients(therapist_id);
       return res.status(200).json({ patients });
     } catch (e) {
@@ -95,7 +94,6 @@ class TherapistController {
   async updateNote(req, res, next) {
     try {
       const body = req.body;
-      console.log(body);
       const { content, tags, therapist_id, note_id } = body;
       await noteModel.updateNote(
         "therapist",
@@ -126,8 +124,6 @@ class TherapistController {
   async getNotifications(req, res, next) {
     try {
       const { therapist_id } = req.query;
-      console.log(therapist_id);
-      console.log("AAAAAAAAAH");
       const result = await notificationModel.getNotifications(
         "therapist",
         therapist_id
@@ -174,7 +170,6 @@ class TherapistController {
   async acceptPatient(req, res, next) {
     try {
       const { therapist_id, patient_id } = req.body;
-      console.log(req.body);
       const user = await therapist.acceptPatient(therapist_id, patient_id);
       await noteModel.postNote(
         "therapist",
@@ -204,12 +199,20 @@ class TherapistController {
         patient_id
       );
       try {
-        const note = await noteModel.getNotesAboutPatient(
-          patient_id,
-          therapist_id
-        );
-        console.log(note);
-        await noteModel.deleteNote("therapist", note[0].id, therapist_id);
+        let note;
+        try {
+          note = await noteModel.getNotesAboutPatient(patient_id, therapist_id);
+        } catch (e) {
+          console.log(e);
+          if (e.statusCode == 404) {
+            note = null;
+          } else {
+            throw e;
+          }
+        }
+        if (note) {
+          await noteModel.deleteNote("therapist", note[0].id, therapist_id);
+        }
         await notificationModel.postNotification(
           "patient",
           patient_id,

@@ -46,7 +46,6 @@ class Note {
       }
 
       query += " ORDER BY id ASC;";
-      console.log(query, params);
       return await QueryBuilder.query(query, params);
     } catch (error) {
       console.error(error);
@@ -63,7 +62,6 @@ class Note {
         "SELECT id, name, surname, therapist_id FROM Patients WHERE therapist_id = ? ORDER BY id ASC;";
       const param = [therapist_id];
       result = await QueryBuilder.query(query, param);
-      console.log(result);
     } catch (e) {
       console.error(error);
       throw new ApiError(
@@ -153,8 +151,7 @@ class Note {
         throw new ApiError(400, "Couldn't get user role.");
       }
       let query = `INSERT INTO \`${tableName}\` VALUES (?, ?, ?, ?, ?, NOW(), ?)`; //da modificare in base alle colonne delle tabelle
-      console.log(query);
-      console.log(params);
+
       return await QueryBuilder.query(query, params);
     } catch (e) {
       console.log(e);
@@ -167,9 +164,6 @@ class Note {
       Validator.validateValue("note_id", note_id);
       Validator.validateValue("title", title);
       Validator.validateValue("content", content);
-      console.log("Da qui");
-      console.log(role);
-      console.log(id);
       Validator.validateValue(role + "_id", id);
       const sanitizedNoteId = parseInt(note_id, 10);
       let sanitizedId = parseInt(id, 10);
@@ -181,8 +175,6 @@ class Note {
       }
       const query = `UPDATE \`${tableName}\` SET title = ?, content = ?, tags = ? WHERE id = ?;`;
       let params = [title, JSON.stringify(content), tags, sanitizedNoteId];
-      console.log(query);
-      console.log(params);
       return await QueryBuilder.query(query, params);
     } catch (e) {
       console.log(e);
@@ -274,7 +266,6 @@ class Note {
       (role == "patient" ? "?, false" : "0, ?") +
       ` )`;
     const query = queryCreate + queryInsert;
-    console.log(query);
     const param = [sanitizedId];
     return QueryBuilder.query(query, param);
   }

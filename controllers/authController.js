@@ -15,7 +15,6 @@ class AuthController {
         email,
         password
       );
-      console.log(result);
       await noteModel.setUserTable("therapist", result[0].id);
       return res.status(200).json(result);
     } catch (e) {
@@ -48,7 +47,6 @@ class AuthController {
       const body = req.body;
       const { email, password } = body;
       const result = await auth.loginUser("therapist", email, password);
-      console.log(result);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);
