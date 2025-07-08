@@ -59,7 +59,6 @@ class TherapistController {
 
   async getNotesAboutPatient(req, res, next) {
     try {
-      const body = req.body;
       const { patient_id, therapist_id } = req.query;
       const notes = await noteModel.getNotesAboutPatient(
         patient_id,

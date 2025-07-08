@@ -151,7 +151,6 @@ class Note {
         throw new ApiError(400, "Couldn't get user role.");
       }
       let query = `INSERT INTO \`${tableName}\` VALUES (?, ?, ?, ?, ?, NOW(), ?)`; //da modificare in base alle colonne delle tabelle
-
       return await QueryBuilder.query(query, params);
     } catch (e) {
       console.log(e);

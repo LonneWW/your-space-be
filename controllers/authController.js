@@ -1,22 +1,29 @@
 import Auth from "../models/Auth.js";
 import Note from "../models/Note.js";
+import AuthService from "../services/authService.js";
+import { ApiError } from "../utils/ApiError.js";
 
 const auth = new Auth();
 const noteModel = new Note();
 class AuthController {
+  async registerUser(role, req) {
+    const body = req.body;
+    const { name, surname, email, password } = body;
+    const emailAvailability = await AuthService.verifyEmailIsUnused(email);
+    if (!emailAvailability) {
+      throw new ApiError(409, "Email already linked to another account.");
+    }
+    const hash = await AuthService.bycriptHash(password);
+    await auth.registerUser(role, name, surname, email, hash);
+    const userData = await auth.getUserBasicInfo(email, role);
+    //DA CAMBIARE; NOTE MODEL ANDRÀ MODIFICATO!!
+    await noteModel.setUserTable(role, userData[0].id);
+    return userData[0];
+  }
   async registerTherapist(req, res, next) {
     try {
-      const body = req.body;
-      const { name, surname, email, password } = body;
-      const result = await auth.registerUser(
-        "therapist",
-        name,
-        surname,
-        email,
-        password
-      );
-      await noteModel.setUserTable("therapist", result[0].id);
-      return res.status(200).json(result);
+      const userBasicInfo = await this.registerUser("therapist", req);
+      return res.status(200).json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
@@ -25,17 +32,8 @@ class AuthController {
 
   async registerPatient(req, res, next) {
     try {
-      const body = req.body;
-      const { name, surname, email, password } = body;
-      const result = await auth.registerUser(
-        "patient",
-        name,
-        surname,
-        email,
-        password
-      );
-      await noteModel.setUserTable("patient", result[0].id);
-      return res.status(200).json(result);
+      const userBasicInfo = await this.registerUser("patient", req);
+      return res.status(200).json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
@@ -44,10 +42,8 @@ class AuthController {
 
   async loginTherapist(req, res, next) {
     try {
-      const body = req.body;
-      const { email, password } = body;
-      const result = await auth.loginUser("therapist", email, password);
-      return res.status(200).json(result);
+      const userBasicInfo = await this.loginUser("therapist", req);
+      return res.status(200).json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
@@ -56,14 +52,30 @@ class AuthController {
 
   async loginPatient(req, res, next) {
     try {
-      const body = req.body;
-      const { email, password } = body;
-      const result = await auth.loginUser("patient", email, password);
-      return res.status(200).json(result);
+      const userBasicInfo = await this.loginUser("patient", req);
+      console.log(userBasicInfo);
+      return res.status(200).json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
     }
+  }
+
+  async loginUser(role, req) {
+    const body = req.body;
+    const { email, password } = body;
+    const credentials = await auth.getUserCredentials(email, role);
+    if (credentials.length != 1) {
+      throw new ApiError(404, "The email is not registered.");
+    }
+    const storedHash = credentials[0].password;
+    const isMatch = AuthService.bycriptCompare(password, storedHash);
+    if (!isMatch) {
+      throw new ApiError(401, "The password is incorrect, please try again.");
+    }
+    const userData = credentials[0];
+    delete userData.password;
+    return userData;
   }
 
   async isLoggedIn(req, res, next) {
@@ -76,6 +88,8 @@ class AuthController {
       next(e);
     }
   }
+
+  //
 }
 
 export default AuthController;

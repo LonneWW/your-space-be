@@ -58,11 +58,9 @@ class Patient {
     }
   }
 
-  async changeTerapistToNull(patient_id, therapist_id) {
+  async changeTerapistToNull(patient_id) {
     Validator.validateValue("patient_id", patient_id);
-    Validator.validateValue("therapist_id", therapist_id);
     const sanitizedId = parseInt(patient_id, 10);
-    const sanitizedTherapistId = parseInt(therapist_id, 10);
     let query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
     let params = [sanitizedId];
     try {

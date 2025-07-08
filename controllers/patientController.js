@@ -54,7 +54,7 @@ class PatientController {
     try {
       const body = req.body;
       const { patient_id, therapist_id } = body;
-      let result = await patient.changeTerapistToNull(patient_id, therapist_id);
+      let result = await patient.changeTerapistToNull(patient_id);
       await notificationModel.postNotification(
         "therapist",
         patient_id,
