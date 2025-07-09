@@ -3,7 +3,7 @@ import Validator from "../utils/Validator.js";
 import { ApiError } from "../utils/ApiError.js";
 
 class Notification {
-  async getNotifications(role, id) {
+  static async getNotifications(role, id) {
     try {
       let table =
         role == "patient"
@@ -28,7 +28,12 @@ class Notification {
     }
   }
 
-  async postNotification(role, patient_id, content, therapist_id = null) {
+  static async postNotification(
+    role,
+    patient_id,
+    content,
+    therapist_id = null
+  ) {
     try {
       const table =
         role == "patient"
@@ -55,7 +60,7 @@ class Notification {
     }
   }
 
-  async deleteNotification(role, notification_id) {
+  static async deleteNotification(role, notification_id) {
     try {
       let table =
         role == "patient"

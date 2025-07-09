@@ -2,7 +2,7 @@ import QueryBuilder from "../utils/QueryBuilder.js";
 import { ApiError } from "../utils/ApiError.js";
 
 class Patient {
-  async getTherapistsList() {
+  static async getTherapistsList() {
     try {
       const query = "SELECT id, name, surname FROM Therapists;";
       return await QueryBuilder.query(query);
@@ -15,7 +15,7 @@ class Patient {
     }
   }
 
-  async getPatient(id) {
+  static async getPatient(id) {
     try {
       const query =
         "SELECT id, name, surname, therapist_id FROM Patients WHERE id = ?";
@@ -26,7 +26,7 @@ class Patient {
     }
   }
 
-  async changeTherapistToPending(patient_id) {
+  static async changeTherapistToPending(patient_id) {
     try {
       let query = "UPDATE Patients SET therapist_id = 0 WHERE id = ?;";
       return QueryBuilder.query(query, [patient_id]);
@@ -39,7 +39,7 @@ class Patient {
     }
   }
 
-  async changeTerapistToNull(patient_id) {
+  static async changeTerapistToNull(patient_id) {
     try {
       let query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
       await QueryBuilder.query(query, [patient_id]);

@@ -4,17 +4,13 @@ import Notification from "../models/Notification.js";
 import Validator from "../utils/Validator.js";
 import { ApiError } from "../utils/ApiError.js";
 
-const therapist = new Therapist();
-const noteModel = new Note();
-const notificationModel = new Notification();
-
 class TherapistController {
   async getTherapist(req, res, next) {
     try {
       const { id } = req.params;
       Validator.validateValue("therapist_id", id);
       const sanitizedId = parseInt(id, 10);
-      const result = await therapist.getTherapist(sanitizedId);
+      const result = await Therapist.getTherapist(sanitizedId);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);
@@ -27,7 +23,7 @@ class TherapistController {
       const { therapist_id } = req.query;
       Validator.validateValue("therapist_id", therapist_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
-      const patients = await therapist.getTherapistPatients(
+      const patients = await Therapist.getTherapistPatients(
         sanitizedTherapistId
       );
       if (patients.length < 1) {
@@ -50,7 +46,7 @@ class TherapistController {
         sanitizedNoteId = parseInt(note_id, 10);
       }
       const filters = { sanitizedNoteId, title, tag, dateFrom, dateTo };
-      const result = await noteModel.getNotes(
+      const result = await Note.getNotes(
         "therapist",
         sanitizedTherapistId,
         filters
@@ -69,7 +65,7 @@ class TherapistController {
       Validator.validateValue("therapist_id", therapist_id);
       const sanitizedPatientId = parseInt(patient_id, 10);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
-      const notes = await noteModel.getPatientNotes(
+      const notes = await Note.getPatientNotes(
         sanitizedPatientId,
         sanitizedTherapistId
       );
@@ -87,7 +83,7 @@ class TherapistController {
       Validator.validateValue("therapist_id", therapist_id);
       const sanitizedPatientId = parseInt(patient_id, 10);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
-      const notes = await noteModel.getNotesAboutPatient(
+      const notes = await Note.getNotesAboutPatient(
         sanitizedPatientId,
         sanitizedTherapistId
       );
@@ -109,7 +105,7 @@ class TherapistController {
       Validator.validateValue("therapist_id", therapist_id);
       const sanitizedPatientId = parseInt(patient_id, 10);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
-      await noteModel.postNote(
+      await Note.postNote(
         "therapist",
         title,
         content,
@@ -132,7 +128,7 @@ class TherapistController {
       Validator.validateValue("note_id", note_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
       const sanitizedNoteId = parseInt(note_id, 10);
-      await noteModel.updateNote(
+      await Note.updateNote(
         "therapist",
         sanitizedNoteId,
         "Patient note",
@@ -154,11 +150,7 @@ class TherapistController {
       Validator.validateValue("note_id", note_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
       const sanitizedNoteId = parseInt(note_id, 10);
-      await noteModel.deleteNote(
-        "therapist",
-        sanitizedNoteId,
-        sanitizedTherapistId
-      );
+      await Note.deleteNote("therapist", sanitizedNoteId, sanitizedTherapistId);
       return res.status(200).json({ message: "Note deleted successfully." });
     } catch (e) {
       console.log(e);
@@ -171,7 +163,7 @@ class TherapistController {
       const { therapist_id } = req.query;
       Validator.validateValue("therapist_id", therapist_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
-      const result = await notificationModel.getNotifications(
+      const result = await Notification.getNotifications(
         "therapist",
         sanitizedTherapistId
       );
@@ -191,7 +183,7 @@ class TherapistController {
       Validator.validateValue("content", content);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
       const sanitizedPatientId = parseInt(patient_id, 10);
-      await notificationModel.postNotification(
+      await Notification.postNotification(
         "therapist",
         sanitizedPatientId,
         content,
@@ -211,7 +203,7 @@ class TherapistController {
       const { notification_id } = req.query;
       Validator.validateValue("notification_id", notification_id);
       const sanitizedNotificationId = parseInt(notification_id, 10);
-      await notificationModel.deleteNotification(
+      await Notification.deleteNotification(
         "therapist",
         sanitizedNotificationId
       );
@@ -231,12 +223,12 @@ class TherapistController {
       Validator.validateValue("patient_id", patient_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
       const sanitizedPatientId = parseInt(patient_id, 10);
-      const therapistData = await therapist.getTherapistBasicInfo(
+      const therapistData = await Therapist.getTherapistBasicInfo(
         sanitizedTherapistId
       );
-      await therapist.acceptPatient(sanitizedTherapistId, sanitizedPatientId);
+      await Therapist.acceptPatient(sanitizedTherapistId, sanitizedPatientId);
       console.log(therapistData);
-      await noteModel.postNote(
+      await Note.postNote(
         "therapist",
         `New Patient Note`,
         '{"ops":[{"insert":"New note"}]}',
@@ -244,7 +236,7 @@ class TherapistController {
         sanitizedPatientId,
         sanitizedTherapistId
       );
-      await notificationModel.postNotification(
+      await Notification.postNotification(
         "patient",
         sanitizedPatientId,
         `The therapist ${therapistData[0].name} ${therapistData[0].surname} has accepted to link with you.`
@@ -263,21 +255,21 @@ class TherapistController {
       Validator.validateValue("patient_id", patient_id);
       const sanitizedTherapistId = parseInt(therapist_id, 10);
       const sanitizedPatientId = parseInt(patient_id, 10);
-      const patientData = await therapist.getPatientBasicInfo(
+      const patientData = await Therapist.getPatientBasicInfo(
         sanitizedPatientId
       );
-      const therapistData = await therapist.getTherapistBasicInfo(
+      const therapistData = await Therapist.getTherapistBasicInfo(
         sanitizedTherapistId
       );
       const message =
         `The therapist ${therapistData[0].name} ${therapistData[0].surname} decided to ` +
         (patientData[0].therapist_id == therapist_id ? "interrupt" : "reject") +
         ` the link.`;
-      await therapist.dischargePatient(sanitizedPatientId);
+      await Therapist.dischargePatient(sanitizedPatientId);
       try {
         let note;
         try {
-          note = await noteModel.getNotesAboutPatient(
+          note = await Note.getNotesAboutPatient(
             sanitizedPatientId,
             sanitizedTherapistId
           );
@@ -290,13 +282,9 @@ class TherapistController {
           }
         }
         if (note) {
-          await noteModel.deleteNote(
-            "therapist",
-            note[0].id,
-            sanitizedTherapistId
-          );
+          await Note.deleteNote("therapist", note[0].id, sanitizedTherapistId);
         }
-        await notificationModel.postNotification(
+        await Notification.postNotification(
           "patient",
           sanitizedPatientId,
           message

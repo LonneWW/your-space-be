@@ -4,8 +4,6 @@ import AuthService from "../services/authService.js";
 import Validator from "../utils/Validator.js";
 import { ApiError } from "../utils/ApiError.js";
 
-const auth = new Auth();
-const noteModel = new Note();
 class AuthController {
   async registerUser(role, req) {
     const body = req.body;
@@ -19,12 +17,12 @@ class AuthController {
       throw new ApiError(409, "Email already linked to another account.");
     }
     const hash = await AuthService.bycriptHash(password);
-    await auth.registerUser(role, name, surname, email, hash);
-    const userData = await auth.getUserBasicInfo(email, role);
+    await Auth.registerUser(role, name, surname, email, hash);
+    const userData = await Auth.getUserBasicInfo(email, role);
     //DA CAMBIARE; NOTE MODEL ANDRÀ MODIFICATO!!
     console.log(userData);
     const userId = parseInt(userData[0].id, 10);
-    await noteModel.setUserTable(role, userId);
+    await Note.setUserTable(role, userId);
     return userData[0];
   }
   async registerTherapist(req, res, next) {
@@ -73,7 +71,7 @@ class AuthController {
     const { email, password } = body;
     Validator.validateValue("email", email);
     Validator.validateValue("password", password);
-    const credentials = await auth.getUserCredentials(email, role);
+    const credentials = await Auth.getUserCredentials(email, role);
     if (credentials.length != 1) {
       throw new ApiError(404, "The email is not registered.");
     }
@@ -90,7 +88,7 @@ class AuthController {
   async isLoggedIn(req, res, next) {
     try {
       const { role, id, name, surname } = req.query;
-      const result = await auth.isLoggedIn(role, id, name, surname);
+      const result = await Auth.isLoggedIn(role, id, name, surname);
       return res.status(200).json(result);
     } catch (e) {
       console.log(e);

@@ -2,7 +2,7 @@ import QueryBuilder from "../utils/QueryBuilder.js";
 import Validator from "../utils/Validator.js";
 import { ApiError } from "../utils/ApiError.js";
 class Note {
-  async getNotes(role, id, filters = {}) {
+  static async getNotes(role, id, filters = {}) {
     try {
       const tableName = (role == "patient" ? "p" : "t") + `_${id}_Notes`;
       let query =
@@ -49,7 +49,7 @@ class Note {
     }
   }
 
-  async getPatientNotes(patient_id) {
+  static async getPatientNotes(patient_id) {
     try {
       const tableName = `p_${patient_id}_Notes`;
       const query = `SELECT id, patient_id, title, content, tags, date FROM \`${tableName}\` WHERE shared = 1;`;
@@ -67,7 +67,7 @@ class Note {
     }
   }
 
-  async getNotesAboutPatient(patient_id, therapist_id) {
+  static async getNotesAboutPatient(patient_id, therapist_id) {
     const tableName = `t_${therapist_id}_Notes`;
     const query = `SELECT id, patient_id, title, content, date, therapist_id FROM \`${tableName}\` WHERE patient_id = ? ORDER BY id ASC;`;
     try {
@@ -85,7 +85,14 @@ class Note {
     }
   }
 
-  async postNote(role, title, content, tags, patient_id, therapist_id = null) {
+  static async postNote(
+    role,
+    title,
+    content,
+    tags,
+    patient_id,
+    therapist_id = null
+  ) {
     try {
       const userId = therapist_id ? therapist_id : patient_id;
       let tableName;
@@ -121,7 +128,7 @@ class Note {
     }
   }
 
-  async updateNote(role, note_id, title, content, tags, userId) {
+  static async updateNote(role, note_id, title, content, tags, userId) {
     try {
       let tableName;
       if (role == "patient") {
@@ -138,7 +145,7 @@ class Note {
     }
   }
 
-  async updateNoteVisibility(patient_id, note_id, shared) {
+  static async updateNoteVisibility(patient_id, note_id, shared) {
     try {
       const tableName = `p_${patient_id}_Notes`;
       const query = `UPDATE \`${tableName}\` SET shared = ? WHERE id = ?;`;
@@ -152,7 +159,7 @@ class Note {
     }
   }
 
-  async deleteNote(role, note_id, userId) {
+  static async deleteNote(role, note_id, userId) {
     try {
       let tableName;
       if (role == "patient") {
@@ -168,7 +175,7 @@ class Note {
     }
   }
 
-  async createNotesTable(role, tableName) {
+  static async createNotesTable(role, tableName) {
     let query = `CREATE TABLE IF NOT EXISTS \`${tableName}\` (
     id INT NOT NULL AUTO_INCREMENT,
     patient_id INT NOT NULL,

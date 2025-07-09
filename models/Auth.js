@@ -1,7 +1,7 @@
 import QueryBuilder from "../utils/QueryBuilder.js";
 
 class Auth {
-  async registerUser(role, name, surname, email, hash) {
+  static async registerUser(role, name, surname, email, hash) {
     try {
       let query =
         "INSERT INTO " +
@@ -62,7 +62,7 @@ class Auth {
   //     throw new ApiError(500, "Couldn't log in, server-side error");
   //   }
   // }
-  async getUserBasicInfo(email, role) {
+  static async getUserBasicInfo(email, role) {
     const query =
       "SELECT id, name, surname" +
       (role == "patient"
@@ -72,7 +72,7 @@ class Auth {
     return QueryBuilder.query(query, [email]);
   }
 
-  async getUserCredentials(email, role) {
+  static async getUserCredentials(email, role) {
     const query =
       "SELECT id, name, surname, password" +
       (role == "patient"
@@ -82,7 +82,7 @@ class Auth {
     return QueryBuilder.query(query, [email]);
   }
 
-  async isLoggedIn(role, id, name, surname) {
+  static async isLoggedIn(role, id, name, surname) {
     try {
       const query =
         "SELECT name, surname FROM " +

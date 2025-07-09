@@ -1,7 +1,7 @@
 import QueryBuilder from "../utils/QueryBuilder.js";
 import { ApiError } from "../utils/ApiError.js";
 class Therapist {
-  async getTherapist(id) {
+  static async getTherapist(id) {
     try {
       const query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
       return QueryBuilder.query(query, [id]);
@@ -14,7 +14,7 @@ class Therapist {
     }
   }
 
-  async getTherapistPatients(therapist_id) {
+  static async getTherapistPatients(therapist_id) {
     try {
       const query =
         "SELECT id, name, surname FROM Patients WHERE therapist_id = ? ORDER BY id ASC;";
@@ -28,7 +28,7 @@ class Therapist {
     }
   }
 
-  async dischargePatient(patient_id) {
+  static async dischargePatient(patient_id) {
     try {
       const query = "UPDATE Patients SET therapist_id = null WHERE id = ?;";
       return await QueryBuilder.query(query, [patient_id]);
@@ -37,7 +37,7 @@ class Therapist {
     }
   }
 
-  async acceptPatient(therapist_id, patient_id) {
+  static async acceptPatient(therapist_id, patient_id) {
     try {
       let query = "UPDATE Patients SET therapist_id = ? WHERE id = ?;";
       let params = [therapist_id, patient_id];
@@ -50,12 +50,12 @@ class Therapist {
     }
   }
 
-  async getPatientBasicInfo(id) {
+  static async getPatientBasicInfo(id) {
     const query =
       "SELECT name, surname, therapist_id FROM Patients WHERE id = ?";
     return QueryBuilder.query(query, [id]);
   }
-  async getTherapistBasicInfo(id) {
+  static async getTherapistBasicInfo(id) {
     const query = "SELECT name, surname FROM Therapists WHERE id = ?";
     return QueryBuilder.query(query, [id]);
   }
