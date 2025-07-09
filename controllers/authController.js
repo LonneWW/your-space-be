@@ -1,6 +1,7 @@
 import Auth from "../models/Auth.js";
 import Note from "../models/Note.js";
 import AuthService from "../services/authService.js";
+import Validator from "../utils/Validator.js";
 import { ApiError } from "../utils/ApiError.js";
 
 const auth = new Auth();
@@ -9,6 +10,10 @@ class AuthController {
   async registerUser(role, req) {
     const body = req.body;
     const { name, surname, email, password } = body;
+    Validator.validateValue("name", name);
+    Validator.validateValue("surname", surname);
+    Validator.validateValue("email", email);
+    Validator.validateValue("password", password);
     const emailAvailability = await AuthService.verifyEmailIsUnused(email);
     if (!emailAvailability) {
       throw new ApiError(409, "Email already linked to another account.");
@@ -17,7 +22,9 @@ class AuthController {
     await auth.registerUser(role, name, surname, email, hash);
     const userData = await auth.getUserBasicInfo(email, role);
     //DA CAMBIARE; NOTE MODEL ANDRÀ MODIFICATO!!
-    await noteModel.setUserTable(role, userData[0].id);
+    console.log(userData);
+    const userId = parseInt(userData[0].id, 10);
+    await noteModel.setUserTable(role, userId);
     return userData[0];
   }
   async registerTherapist(req, res, next) {
@@ -64,6 +71,8 @@ class AuthController {
   async loginUser(role, req) {
     const body = req.body;
     const { email, password } = body;
+    Validator.validateValue("email", email);
+    Validator.validateValue("password", password);
     const credentials = await auth.getUserCredentials(email, role);
     if (credentials.length != 1) {
       throw new ApiError(404, "The email is not registered.");
@@ -88,8 +97,6 @@ class AuthController {
       next(e);
     }
   }
-
-  //
 }
 
 export default AuthController;

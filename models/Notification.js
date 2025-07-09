@@ -7,8 +7,6 @@ class Notification {
     try {
       let table = this.returnTableByRole(role);
       let condition;
-      Validator.validateValue("id", id);
-      let param = [id];
       if (role == "patient") {
         condition = "patient_id";
       } else if (role == "therapist") {
@@ -16,10 +14,8 @@ class Notification {
       } else {
         throw console.error("Unrecognized user role");
       }
-      const sanitizedId = parseInt(param, 10);
-      const query = `SELECT * FROM \`${table}\` WHERE \`${condition}\` = ?;`;
-      const params = [sanitizedId];
-      return await QueryBuilder.query(query, params);
+      const query = `SELECT * FROM \`${table}\` WHERE \`${condition}\` = ? ORDER BY id ASC;`;
+      return await QueryBuilder.query(query, [id]);
     } catch (e) {
       console.log(e);
       throw new ApiError(
@@ -32,8 +28,6 @@ class Notification {
   async postNotification(role, patient_id, content, therapist_id = null) {
     try {
       const table = this.returnTableByRole(role);
-      Validator.validateValue("patient_id", patient_id);
-      Validator.validateValue("content", content);
       let params;
       if (role == "patient") {
         params = [parseInt(patient_id, 10), content];
@@ -58,11 +52,8 @@ class Notification {
   async deleteNotification(role, notification_id) {
     try {
       let table = this.returnTableByRole(role);
-      Validator.validateValue("notification_id", notification_id);
-      const sanitizedId = parseInt(notification_id);
       const query = `DELETE FROM \`${table}\` WHERE id = ?;`;
-      const params = [sanitizedId];
-      return await QueryBuilder.query(query, params);
+      return await QueryBuilder.query(query, [notification_id]);
     } catch (e) {
       console.log(e);
       throw new ApiError(
