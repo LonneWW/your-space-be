@@ -5,7 +5,10 @@ import { ApiError } from "../utils/ApiError.js";
 class Notification {
   async getNotifications(role, id) {
     try {
-      let table = this.returnTableByRole(role);
+      let table =
+        role == "patient"
+          ? "Patients_Notifications"
+          : "Therapists_Notifications";
       let condition;
       if (role == "patient") {
         condition = "patient_id";
@@ -27,7 +30,10 @@ class Notification {
 
   async postNotification(role, patient_id, content, therapist_id = null) {
     try {
-      const table = this.returnTableByRole(role);
+      const table =
+        role == "patient"
+          ? "Patients_Notifications"
+          : "Therapists_Notifications";
       let params;
       if (role == "patient") {
         params = [parseInt(patient_id, 10), content];
@@ -51,7 +57,10 @@ class Notification {
 
   async deleteNotification(role, notification_id) {
     try {
-      let table = this.returnTableByRole(role);
+      let table =
+        role == "patient"
+          ? "Patients_Notifications"
+          : "Therapists_Notifications";
       const query = `DELETE FROM \`${table}\` WHERE id = ?;`;
       return await QueryBuilder.query(query, [notification_id]);
     } catch (e) {
@@ -60,16 +69,6 @@ class Notification {
         500,
         "Couldn't delete the notification, server-side error"
       );
-    }
-  }
-
-  returnTableByRole(role) {
-    if (role == "patient") {
-      return `Patients_Notifications`;
-    } else if (role == "therapist") {
-      return `Therapists_Notifications`;
-    } else {
-      throw new ApiError(500, "Unrecognized user role");
     }
   }
 }

@@ -169,7 +169,21 @@ class Note {
   }
 
   async createNotesTable(role, tableName) {
-    let query = this.queryToCreateNotesTableByRole(role, tableName);
+    let query = `CREATE TABLE IF NOT EXISTS \`${tableName}\` (
+    id INT NOT NULL AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    content JSON NOT NULL, 
+    tags JSON, 
+    date DATETIME NOT NULL, 
+    PRIMARY KEY (id)`;
+    if (role == "patient") {
+      query = query + `, shared BOOL NOT NULL);`;
+    } else if (role == "therapist") {
+      query = query + `, therapist_id INT NOT NULL);`;
+    } else {
+      throw console.error("Error creating note table");
+    }
     return await QueryBuilder.query(query);
   }
 
@@ -201,7 +215,21 @@ class Note {
     } else {
       throw new ApiError(400, "Couldn't get user role.");
     }
-    let queryCreate = this.queryToCreateNotesTableByRole(role, tableName);
+    let queryCreate = `CREATE TABLE IF NOT EXISTS \`${tableName}\` (
+    id INT NOT NULL AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    content JSON NOT NULL, 
+    tags JSON, 
+    date DATETIME NOT NULL, 
+    PRIMARY KEY (id)`;
+    if (role == "patient") {
+      queryCreate = queryCreate + `, shared BOOL NOT NULL);`;
+    } else if (role == "therapist") {
+      queryCreate = queryCreate + `, therapist_id INT NOT NULL);`;
+    } else {
+      throw console.error("Error creating note table");
+    }
     let queryInsert =
       ` INSERT INTO \`${tableName}\` (id, title, content, date, patient_id` +
       (role == "patient" ? ", shared" : ", therapist_id") +
