@@ -8,6 +8,7 @@ import therapistRouter from "./routes/therapistRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import errorHandler from "./utils/ErrorHandler.js";
 import verifyToken from "./middlewares/authMiddleware.js";
+import verifyProperty from "./middlewares/ownershipMiddleware.js";
 // import routes from "./routes/routes.js";
 dotenv.config();
 
@@ -33,8 +34,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions)); // applichi cors a tutte le rotte
 
-app.use("/patient", verifyToken, patientRouter);
-app.use("/therapist", verifyToken, therapistRouter);
+app.use("/patient", [verifyToken, verifyProperty], patientRouter);
+app.use("/therapist", [verifyToken, verifyProperty], therapistRouter);
 app.use("/auth", authRouter);
 
 app.get("/", (req, res) => {

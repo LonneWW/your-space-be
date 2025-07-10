@@ -15,9 +15,11 @@ function verifyToken(req, res, next) {
     } catch {
       throw new ApiError(401, "Invalid Auth Token; operation blocked.");
     }
-    const { userRole } = payload;
+    const { userId, userRole } = payload;
     if (routeRole !== userRole)
       throw new ApiError(401, "Access denied; operation blocked.");
+    req.userId = userId;
+    req.userRole = userRole;
     next();
   } catch (e) {
     console.error(e);
