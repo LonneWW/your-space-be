@@ -18,12 +18,7 @@ class AuthController {
     }
     const hash = await AuthService.bycriptHash(password);
     await Auth.registerUser(role, name, surname, email, hash);
-    const userData = await Auth.getUserBasicInfo(email, role);
-    //DA CAMBIARE; NOTE MODEL ANDRÀ MODIFICATO!!
-    console.log(userData);
-    const userId = parseInt(userData[0].id, 10);
-    await Note.setUserTable(role, userId);
-    return userData[0];
+    return await this.loginUser(role, req);
   }
   async registerTherapist(req, res, next) {
     try {
