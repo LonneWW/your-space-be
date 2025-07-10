@@ -1,9 +1,11 @@
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import Auth from "../models/Auth.js";
 dotenv.config();
 
 const saltRounds = Number(process.env.SALT_ROUNDS);
+const jwtKey = process.env.JWT_SECRET;
 
 class AuthService {
   static async bycriptHash(password) {
@@ -16,7 +18,6 @@ class AuthService {
   }
 
   static async verifyEmailIsUnused(email) {
-    console.log(email);
     const emailInTherapists = await Auth.getUserBasicInfo(email, "therapist");
     console.log(emailInTherapists);
     const emailInPatients = await Auth.getUserBasicInfo(email, "patient");
@@ -25,6 +26,10 @@ class AuthService {
       return false;
     }
     return true;
+  }
+
+  static async getToken(id, role) {
+    return jwt.sign({ userId: id, userRole: role }, jwtKey);
   }
 }
 

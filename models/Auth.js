@@ -82,20 +82,20 @@ class Auth {
     return QueryBuilder.query(query, [email]);
   }
 
-  static async isLoggedIn(role, id, name, surname) {
-    try {
-      const query =
-        "SELECT name, surname FROM " +
-        (role == "patient" ? "Patients" : "Therapists") +
-        " WHERE name = ? AND surname = ? AND id = ?";
-      const params = [name, surname, id];
-      const result = await QueryBuilder.query(query, params);
-      return result;
-    } catch (e) {
-      console.log(e);
-      throw new ApiError(500, "Couldn't verify logged user.");
-    }
-  }
+  // static async isLoggedIn(role, id, name, surname) {
+  //   try {
+  //     const query =
+  //       "SELECT name, surname FROM " +
+  //       (role == "patient" ? "Patients" : "Therapists") +
+  //       " WHERE name = ? AND surname = ? AND id = ?";
+  //     const params = [name, surname, id];
+  //     const result = await QueryBuilder.query(query, params);
+  //     return result;
+  //   } catch (e) {
+  //     console.log(e);
+  //     throw new ApiError(500, "Couldn't verify logged user.");
+  //   }
+  // }
 }
 
 export default Auth;

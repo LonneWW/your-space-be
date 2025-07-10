@@ -15,6 +15,19 @@ class Patient {
     }
   }
 
+  static async getTherapist(id) {
+    try {
+      const query = "SELECT id, name, surname FROM Therapists WHERE id = ?";
+      return QueryBuilder.query(query, [id]);
+    } catch (e) {
+      console.log(e);
+      throw new ApiError(
+        500,
+        "Couldn't obtain therapists data, server-side error"
+      );
+    }
+  }
+
   static async getPatient(id) {
     try {
       const query =

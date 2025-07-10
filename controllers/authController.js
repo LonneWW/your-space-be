@@ -43,7 +43,14 @@ class AuthController {
   async loginTherapist(req, res, next) {
     try {
       const userBasicInfo = await this.loginUser("therapist", req);
-      return res.status(200).json(userBasicInfo);
+      const token = await AuthService.getToken(userBasicInfo.id, "therapist");
+      return res
+        .cookie("accessToken", token, {
+          httpOnly: true,
+          sameSite: "Strict",
+        })
+        .status(200)
+        .json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
@@ -54,7 +61,14 @@ class AuthController {
     try {
       const userBasicInfo = await this.loginUser("patient", req);
       console.log(userBasicInfo);
-      return res.status(200).json(userBasicInfo);
+      const token = await AuthService.getToken(userBasicInfo.id, "patient");
+      return res
+        .cookie("accessToken", token, {
+          httpOnly: true,
+          sameSite: "Strict",
+        })
+        .status(200)
+        .json(userBasicInfo);
     } catch (e) {
       console.log(e);
       next(e);
@@ -78,17 +92,6 @@ class AuthController {
     const userData = credentials[0];
     delete userData.password;
     return userData;
-  }
-
-  async isLoggedIn(req, res, next) {
-    try {
-      const { role, id, name, surname } = req.query;
-      const result = await Auth.isLoggedIn(role, id, name, surname);
-      return res.status(200).json(result);
-    } catch (e) {
-      console.log(e);
-      next(e);
-    }
   }
 }
 

@@ -14,6 +14,19 @@ class PatientController {
     }
   }
 
+  async getTherapist(req, res, next) {
+    try {
+      const { id } = req.params;
+      Validator.validateValue("therapist_id", id);
+      const sanitizedId = parseInt(id, 10);
+      const result = await Patient.getTherapist(sanitizedId);
+      return res.status(200).json(result);
+    } catch (e) {
+      console.log(e);
+      next(e);
+    }
+  }
+
   async getPatient(req, res, next) {
     try {
       const { id } = req.params;
