@@ -16,8 +16,12 @@ function verifyToken(req, res, next) {
       throw new ApiError(401, "Invalid Auth Token; operation blocked.");
     }
     const { userId, userRole } = payload;
-    if (routeRole !== userRole)
-      throw new ApiError(401, "Access denied; operation blocked.");
+    //since the call to check if the client has a token doesn't specify the user role
+    //I removed this specific baseUrl from the control
+    if (routeRole != "auth") {
+      if (routeRole !== userRole)
+        throw new ApiError(401, "Access denied; operation blocked.");
+    }
     req.userId = userId;
     req.userRole = userRole;
     next();
