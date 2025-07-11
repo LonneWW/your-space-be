@@ -7,9 +7,9 @@ import { ApiError } from "../utils/ApiError.js";
 class TherapistController {
   async getTherapist(req, res, next) {
     try {
-      const { id } = req.params;
-      Validator.validateValue("therapist_id", id);
-      const sanitizedId = parseInt(id, 10);
+      const { therapist_id } = req.query;
+      Validator.validateValue("therapist_id", therapist_id);
+      const sanitizedId = parseInt(therapist_id, 10);
       const result = await Therapist.getTherapist(sanitizedId);
       return res.status(200).json(result);
     } catch (e) {

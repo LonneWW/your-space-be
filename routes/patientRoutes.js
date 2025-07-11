@@ -52,7 +52,7 @@ router.delete("/notifications", (req, res, next) => {
   patientController.deleteNotification(req, res, next);
 });
 
-router.get("/:id", (req, res, next) => {
+router.get("/", (req, res, next) => {
   patientController.getPatient(req, res, next);
 });
 

@@ -29,9 +29,9 @@ class PatientController {
 
   async getPatient(req, res, next) {
     try {
-      const { id } = req.params;
-      Validator.validateValue("id", id);
-      const sanitizedId = parseInt(id, 10);
+      const { patient_id } = req.query;
+      Validator.validateValue("patient_id", patient_id);
+      const sanitizedId = parseInt(patient_id, 10);
       const result = await Patient.getPatient(sanitizedId);
       return res.status(200).json(result);
     } catch (e) {

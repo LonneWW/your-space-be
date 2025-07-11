@@ -24,7 +24,7 @@ router.get("/notifications", (req, res, next) => {
   therapistController.getNotifications(req, res, next);
 });
 
-router.get("/:id", (req, res, next) => {
+router.get("/", (req, res, next) => {
   therapistController.getTherapist(req, res, next);
 });
 
