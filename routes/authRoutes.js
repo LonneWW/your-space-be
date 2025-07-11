@@ -6,9 +6,7 @@ const router = express.Router();
 const authController = new AuthController();
 
 router.get("/verify-session", verifyToken, (req, res, next) => {
-  console.log("pio");
   const token = req.cookies.accessToken;
-  console.log(token);
   res.status(200).json({ message: "User authorized successfully." });
 });
 
@@ -22,7 +20,6 @@ router.post("/register/patient", (req, res, next) => {
 
 router.post("/login/therapist", (req, res, next) => {
   const token = req.cookies.accessToken;
-  console.log(token);
   authController.loginTherapist(req, res, next);
 });
 

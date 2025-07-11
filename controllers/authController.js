@@ -60,7 +60,6 @@ class AuthController {
   async loginPatient(req, res, next) {
     try {
       const userBasicInfo = await this.loginUser("patient", req);
-      console.log(userBasicInfo);
       const token = await AuthService.getToken(userBasicInfo.id, "patient");
       return res
         .cookie("accessToken", token, {

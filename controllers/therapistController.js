@@ -96,7 +96,6 @@ class TherapistController {
 
   async postNote(req, res, next) {
     try {
-      console.log(req.body);
       const body = req.body;
       const { content, title, tags, patient_id, therapist_id } = body;
       Validator.validateValue("content", content);
@@ -227,7 +226,6 @@ class TherapistController {
         sanitizedTherapistId
       );
       await Therapist.acceptPatient(sanitizedTherapistId, sanitizedPatientId);
-      console.log(therapistData);
       await Note.postNote(
         "therapist",
         `New Patient Note`,
