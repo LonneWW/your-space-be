@@ -47,7 +47,8 @@ class AuthController {
       return res
         .cookie("accessToken", token, {
           httpOnly: true,
-          sameSite: "lax",
+          secure: true,
+          sameSite: "none",
         })
         .status(200)
         .json(userBasicInfo);
